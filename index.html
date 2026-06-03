@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azavision — Moda & Prêt-à-Porter | Portugal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter','sans-serif'], serif: ['Playfair Display','serif'] },
+                    colors: { luxury: { gold: '#C5A880', 'gold-dark': '#A3855E' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1c1c1c; }
+        ::-webkit-scrollbar-thumb { background: #C5A880; border-radius: 3px; }
+        .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+        .pulse-gold { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(197,168,128,0.7); } 70% { box-shadow: 0 0 0 8px rgba(197,168,128,0); } }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .transition-all-300 { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        #hero-motion-canvas { pointer-events: auto; cursor: crosshair; }
+    </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900 font-sans overflow-x-hidden">
+
+    <!-- Barra promocional -->
+    <div id="promo-bar" class="bg-luxury-gold text-neutral-950 text-center py-2 text-[11px] font-semibold uppercase tracking-[0.2em] relative">
+        <span>✦ Envio grátis a partir de 150€ • Código AZA10: -10% na primeira encomenda ✦</span>
+        <button onclick="document.getElementById('promo-bar').style.display='none'" class="absolute right-3 top-1/2 -translate-y-1/2"><i class="fa-solid fa-times text-xs"></i></button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 translate-y-20 opacity-0 pointer-events-none transition-all duration-300 max-w-sm bg-neutral-900 text-white p-4 rounded-xl shadow-2xl border border-luxury-gold flex items-center gap-3">
+        <div class="bg-luxury-gold text-neutral-900 p-2 rounded-full w-8 h-8 flex items-center justify-center"><i class="fa-solid fa-check text-sm" id="toast-icon"></i></div>
+        <div class="flex-1"><p id="toast-title" class="font-semibold text-sm">Sucesso</p><p id="toast-message" class="text-xs text-neutral-400"></p></div>
+        <button onclick="hideToast()"><i class="fa-solid fa-times text-neutral-400"></i></button>
+    </div>
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-neutral-900/95 text-white border-b border-neutral-800" id="main-header" style="top:36px">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <button onclick="toggleMobileMenu()" class="lg:hidden text-neutral-300"><i class="fa-solid fa-bars text-xl"></i></button>
+                <div class="flex-1 lg:flex-none text-center lg:text-left">
+                    <a href="#"><span id="brand-title" class="font-serif text-2xl tracking-[0.25em] font-bold uppercase">Azavision</span>
+                    <span class="block text-[8px] uppercase tracking-[0.4em] text-luxury-gold mt-1">Lisboa • Moda Contemporânea</span></a>
+                </div>
+                <nav class="hidden lg:flex space-x-8 text-xs font-semibold uppercase tracking-widest items-center">
+                    <a href="#" class="hover:text-luxury-gold transition-all-300">Início</a>
+                    <a href="#lookbook" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Lookbook</a>
+                    <a href="#boutique" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Loja</a>
+                    <a href="#suivi" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Rastreio</a>
+                    <a href="../admin/index.html" class="text-neutral-500 hover:text-luxury-gold text-[10px]">Admin</a>
+                    <span id="mode-badge" class="text-[10px] text-amber-400 flex items-center gap-1.5"></span>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleWishlist()" class="relative hidden md:block"><i class="fa-regular fa-heart text-xl"></i>
+                        <span id="wishlist-counter-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 hidden items-center justify-center">0</span></button>
+                    <button onclick="toggleCart()" class="relative"><i class="fa-solid fa-bag-shopping text-xl"></i>
+                        <span id="cart-counter" class="absolute -top-1 -right-1 bg-luxury-gold text-neutral-900 text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center pulse-gold">0</span></button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden bg-neutral-950 border-t border-neutral-800 px-4 py-6 space-y-4 text-sm uppercase">
+            <a href="#lookbook" onclick="toggleMobileMenu()">Lookbook</a>
+            <a href="#boutique" onclick="toggleMobileMenu()">Loja</a>
+            <a href="#suivi" onclick="toggleMobileMenu()">Rastreio</a>
+        </div>
+    </header>
+
+    <!-- Hero — animation géométrique couture (motion) -->
+    <section class="relative min-h-[92vh] flex items-center justify-center bg-neutral-950 text-white overflow-hidden pt-20">
+        <canvas id="hero-motion-canvas" class="absolute top-0 left-0 w-full h-full z-0"></canvas>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-950/40 to-neutral-950 pointer-events-none z-10"></div>
+
+        <div class="relative max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 z-20 pointer-events-none">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel text-[11px] uppercase tracking-[0.3em] text-luxury-gold mb-6 animate-pulse pointer-events-auto">
+                <i class="fa-solid fa-sparkles text-xs"></i> Coleção Couture & Prêt-à-Porter
+            </div>
+
+            <h1 class="font-serif text-5xl sm:text-7xl lg:text-8xl tracking-widest font-bold mb-8 leading-tight uppercase pointer-events-auto">
+                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-white via-stone-200 to-luxury-gold">Azavision</span>
+                <span class="block text-xs sm:text-base font-sans font-light tracking-[0.6em] text-neutral-400 mt-4">Redéfinir le chic minimaliste contemporain</span>
+            </h1>
+
+            <p class="text-sm sm:text-base text-neutral-300 font-light max-w-xl mx-auto mb-10 leading-relaxed pointer-events-auto">
+                L'équilibre entre confort, pureté des lignes et élégance intemporelle. Inventaire en direct via Google Sheets. IVA <span id="tva-display">23%</span> incluído.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
+                <a href="#boutique" class="w-full sm:w-auto px-8 py-4 bg-luxury-gold text-neutral-950 font-semibold text-xs uppercase tracking-[0.2em] rounded-md hover:bg-white transition-all-300 transform hover:-translate-y-1 shadow-lg shadow-luxury-gold/20 flex items-center justify-center gap-2">
+                    Découvrir l'univers <i class="fa-solid fa-arrow-right text-xs"></i>
+                </a>
+                <a href="#suivi" class="w-full sm:w-auto px-8 py-4 glass-panel text-white font-semibold text-xs uppercase tracking-[0.2em] rounded-md hover:bg-white hover:text-neutral-950 transition-all-300 transform hover:-translate-y-1 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-map-location-dot"></i> Suivi commande
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 pointer-events-none opacity-80">
+            <span class="text-[9px] uppercase tracking-[0.3em] text-neutral-400">Glisser vers le bas</span>
+            <div class="w-6 h-10 border-2 border-neutral-700 rounded-full flex justify-center p-1">
+                <div class="w-1.5 h-2.5 bg-luxury-gold rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust badges -->
+    <section class="py-12 bg-neutral-950 text-white border-y border-neutral-900">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="flex items-center gap-4 p-4 rounded-xl glass-panel"><i class="fa-solid fa-truck-fast text-luxury-gold text-xl"></i><div><h4 class="text-xs font-semibold uppercase">Envio Expresso</h4><p class="text-xs text-neutral-400" id="delivery-info">Grátis a partir de 150€.</p></div></div>
+            <div class="flex items-center gap-4 p-4 rounded-xl glass-panel"><i class="fa-solid fa-credit-card text-luxury-gold text-xl"></i><div><h4 class="text-xs font-semibold uppercase">Pagamentos Seguros</h4><p class="text-xs text-neutral-400">Cartão (Stripe), MB Way e Multibanco.</p></div></div>
+            <div class="flex items-center gap-4 p-4 rounded-xl glass-panel"><i class="fa-solid fa-file-invoice text-luxury-gold text-xl"></i><div><h4 class="text-xs font-semibold uppercase">Faturação AT</h4><p class="text-xs text-neutral-400">IVA 23% — Fatura automática via Moloni.</p></div></div>
+        </div>
+    </section>
+
+    <!-- Boutique -->
+    <section id="boutique" class="py-20 bg-stone-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-serif text-3xl font-bold uppercase tracking-wider mb-4">Loja Azavision</h2>
+                <div class="w-16 h-0.5 bg-luxury-gold mx-auto"></div>
+            </div>
+            <div class="flex flex-col md:flex-row justify-between gap-4 mb-10 pb-6 border-b border-neutral-200">
+                <div class="flex overflow-x-auto gap-2 scrollbar-none" id="category-filters">
+                    <button onclick="filterCategory('all')" id="btn-filter-all" class="category-btn px-4 py-2 text-xs font-semibold uppercase rounded-md bg-neutral-900 text-white">Todos</button>
+                    <button onclick="filterCategory('hommes')" id="btn-filter-hommes" class="category-btn px-4 py-2 text-xs font-semibold uppercase rounded-md bg-white border border-neutral-200">Homens</button>
+                    <button onclick="filterCategory('femmes')" id="btn-filter-femmes" class="category-btn px-4 py-2 text-xs font-semibold uppercase rounded-md bg-white border border-neutral-200">Mulheres</button>
+                    <button onclick="filterCategory('accessoires')" id="btn-filter-accessoires" class="category-btn px-4 py-2 text-xs font-semibold uppercase rounded-md bg-white border border-neutral-200">Acessórios</button>
+                    <button onclick="filterCategory('soldes')" id="btn-filter-soldes" class="category-btn px-4 py-2 text-xs font-semibold uppercase rounded-md bg-red-600 text-white">Saldos</button>
+                </div>
+                <div class="flex gap-3">
+                    <input type="text" id="catalog-search" oninput="searchProducts()" placeholder="Pesquisar..." class="px-4 py-2 text-xs border border-neutral-200 rounded-md focus:border-luxury-gold outline-none">
+                    <select id="price-sort" onchange="sortProducts()" class="px-4 py-2 text-xs border border-neutral-200 rounded-md">
+                        <option value="default">Ordenar</option>
+                        <option value="low-to-high">Preço ↑</option>
+                        <option value="high-to-low">Preço ↓</option>
+                    </select>
+                </div>
+            </div>
+            <div id="products-loading" class="text-center py-20"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-gold mb-4"></div><p class="text-xs uppercase text-neutral-500">A carregar catálogo...</p></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 hidden" id="products-grid"></div>
+        </div>
+    </section>
+
+    <!-- Lookbook -->
+    <section id="lookbook" class="py-20 bg-neutral-950 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-xl mx-auto mb-14">
+                <span class="text-xs font-semibold text-luxury-gold uppercase tracking-[0.3em] block mb-2">Lookbook 2026</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-bold uppercase tracking-wider mb-4">L'Esprit Azavision</h2>
+                <div class="w-16 h-[2px] bg-luxury-gold mx-auto mb-4"></div>
+                <p class="text-xs text-neutral-400 font-light">Une vision minimaliste du luxe contemporain, entre Lisbonne et Paris.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div class="col-span-2 row-span-2 relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                    <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=800&auto=format&fit=crop" alt="Lookbook" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/70 to-transparent flex items-end p-6">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-widest text-luxury-gold">Editoriaux</span>
+                            <h3 class="font-serif text-xl font-bold mt-1">Collection Hiver</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=400&auto=format&fit=crop" alt="Femmes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent flex items-end p-4"><span class="text-[10px] uppercase tracking-widest text-luxury-gold">Femmes</span></div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                    <img src="https://images.unsplash.com/photo-1490367532201-b9bc1dc483f6?q=80&w=400&auto=format&fit=crop" alt="Hommes" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent flex items-end p-4"><span class="text-[10px] uppercase tracking-widest text-luxury-gold">Hommes</span></div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=400&auto=format&fit=crop" alt="Accessoires" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent flex items-end p-4"><span class="text-[10px] uppercase tracking-widest text-luxury-gold">Accessoires</span></div>
+                </div>
+                <div class="relative overflow-hidden rounded-xl group cursor-pointer aspect-square">
+                    <img src="https://images.unsplash.com/photo-1517022812141-23620decdad4?q=80&w=400&auto=format&fit=crop" alt="Enfants" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <div class="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent flex items-end p-4"><span class="text-[10px] uppercase tracking-widest text-luxury-gold">Enfants</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rastreio -->
+    <section id="suivi" class="py-20 bg-neutral-900 text-white border-t border-neutral-800">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h2 class="font-serif text-3xl font-bold uppercase mb-6">Rastrear encomenda</h2>
+            <div class="glass-panel p-6 rounded-xl max-w-lg mx-auto">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="track-id-input" placeholder="Nº encomenda (AZ-XXXXXX)" class="flex-1 px-4 py-3 bg-neutral-950 border border-neutral-800 rounded-lg text-sm uppercase focus:border-luxury-gold outline-none">
+                    <button onclick="trackOrder()" class="px-6 py-3 bg-luxury-gold text-neutral-950 font-semibold text-xs uppercase rounded-lg"><i class="fa-solid fa-magnifying-glass mr-2"></i>Pesquisar</button>
+                </div>
+                <div id="tracking-result" class="mt-8 text-left hidden border-t border-neutral-800 pt-6"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="py-16 bg-luxury-gold">
+        <div class="max-w-3xl mx-auto px-4 text-center">
+            <h2 class="font-serif text-2xl font-bold uppercase text-neutral-950 mb-6">Newsletter Azavision</h2>
+            <div class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input type="email" id="newsletter-email" placeholder="O seu e-mail" class="flex-1 px-4 py-3 rounded-lg text-xs">
+                <button onclick="subscribeNewsletter()" class="px-6 py-3 bg-neutral-950 text-white text-xs uppercase font-semibold rounded-lg">Subscrever</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer legal Portugal -->
+    <footer class="bg-neutral-950 text-white py-12 border-t border-neutral-900">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <span id="footer-brand" class="font-serif text-lg font-bold uppercase">Azavision</span>
+                    <p class="text-xs text-neutral-400 mt-4" id="footer-address">Lisboa, Portugal<br>Suporte: contact@azavision.pt</p>
+                    <p class="text-xs text-neutral-500 mt-2" id="footer-nif">NIF: 999999999</p>
+                </div>
+                <div>
+                    <h5 class="text-xs uppercase font-semibold text-luxury-gold mb-4">Informação</h5>
+                    <ul class="space-y-2 text-xs text-neutral-400">
+                        <li><a href="#boutique" class="hover:text-white">Loja</a></li>
+                        <li><a href="politica-privacidade.html" class="hover:text-white">Política de Privacidade (RGPD)</a></li>
+                        <li><a href="politica-privacidade.html#cookies" class="hover:text-white">Política de Cookies</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-xs uppercase font-semibold text-luxury-gold mb-4">Pagamentos</h5>
+                    <p class="text-xs text-neutral-400">Cartão (Visa/Mastercard), MB Way, Multibanco.<br>IVA 23% incluído.</p>
+                </div>
+                <div>
+                    <h5 class="text-xs uppercase font-semibold text-luxury-gold mb-4">Livro de Reclamações</h5>
+                    <a id="livro-reclamacoes-link" href="https://www.livroreclamacoes.pt/inicio/reclamacao" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 hover:opacity-80 transition">
+                        <img src="assets/livro-reclamacoes.svg" alt="Livro de Reclamações Eletrónico" class="h-10">
+                        <span class="text-xs text-neutral-400">Acesso ao Livro de<br>Reclamações Eletrónico</span>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-neutral-900 pt-6 text-center text-[10px] text-neutral-500">
+                &copy; 2026 <span id="brand-copyright">Azavision</span>. Todos os direitos reservados. Conforme RGPD e legislação portuguesa.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Quick View Modal -->
+    <div id="quickview-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="fixed inset-0 bg-neutral-950/80" onclick="closeQuickView()"></div>
+        <div class="relative max-w-4xl mx-auto my-8 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <button onclick="closeQuickView()" class="absolute right-4 top-4 z-10 w-8 h-8 rounded-full bg-neutral-100 flex items-center justify-center"><i class="fa-solid fa-times"></i></button>
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <div class="bg-neutral-100 p-8 flex items-center justify-center min-h-[350px]"><img id="qv-img" src="" class="max-h-[400px] object-contain"></div>
+                <div class="p-8">
+                    <span id="qv-category" class="text-[10px] font-bold text-luxury-gold-dark uppercase"></span>
+                    <h3 id="qv-title" class="font-serif text-2xl font-bold uppercase mt-1"></h3>
+                    <div id="qv-price" class="text-xl font-bold mt-4"></div>
+                    <p id="qv-desc" class="text-xs text-neutral-500 mt-4"></p>
+                    <div class="mt-6"><label class="text-xs uppercase font-semibold">Tamanho:</label>
+                        <div class="flex gap-2 mt-2" id="qv-size-container">
+                            <button onclick="selectSize('S')" class="size-btn px-3 py-1.5 text-xs rounded border border-neutral-900 bg-neutral-900 text-white">S</button>
+                            <button onclick="selectSize('M')" class="size-btn px-3 py-1.5 text-xs rounded border border-neutral-300">M</button>
+                            <button onclick="selectSize('L')" class="size-btn px-3 py-1.5 text-xs rounded border border-neutral-300">L</button>
+                            <button onclick="selectSize('XL')" class="size-btn px-3 py-1.5 text-xs rounded border border-neutral-300">XL</button>
+                        </div>
+                    </div>
+                    <button id="qv-add-to-cart-btn" onclick="addCurrentToCart()" class="w-full mt-6 py-4 bg-neutral-900 text-white text-xs uppercase font-semibold rounded-md hover:bg-luxury-gold hover:text-neutral-900 transition"><i class="fa-solid fa-cart-plus mr-2"></i>Adicionar ao carrinho</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div id="cart-sidebar" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-neutral-950/80" onclick="toggleCart()"></div>
+        <div class="absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div class="flex items-center justify-between px-6 py-5 bg-neutral-900 text-white border-b"><h2 class="text-sm font-semibold uppercase"><i class="fa-solid fa-bag-shopping text-luxury-gold mr-2"></i>Carrinho</h2><button onclick="toggleCart()"><i class="fa-solid fa-times"></i></button></div>
+            <div class="flex-1 overflow-y-auto px-6" id="cart-items-container"></div>
+            <div class="border-t px-6 py-6 bg-neutral-50">
+                <div class="flex justify-between text-xs mb-2"><span>Subtotal</span><span id="cart-subtotal">0.00 €</span></div>
+                <div class="flex justify-between text-xs mb-2"><span>Envio</span><span id="cart-shipping" class="text-green-600">Grátis</span></div>
+                <div class="flex justify-between text-xs mb-2"><span>IVA (<span class="tva-rate-label">23</span>%)</span><span id="cart-iva">0.00 €</span></div>
+                <div class="flex justify-between text-sm font-bold mb-4 pt-4 border-t"><span>Total (IVA incl.)</span><span id="cart-total">0.00 €</span></div>
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="promo-code-input" placeholder="Código promo" class="flex-1 px-3 py-2 text-xs border rounded-md uppercase">
+                    <button onclick="applyPromoCode()" class="px-3 py-2 bg-neutral-900 text-white text-[10px] uppercase font-bold rounded-md">OK</button>
+                </div>
+                <button onclick="openCheckout()" class="w-full py-4 bg-neutral-900 text-white text-xs uppercase font-semibold rounded-md hover:bg-luxury-gold hover:text-neutral-900 transition"><i class="fa-solid fa-credit-card mr-2"></i>Finalizar compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wishlist -->
+    <div id="wishlist-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 bg-neutral-950/80" onclick="toggleWishlist()"></div>
+        <div class="absolute inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div class="px-6 py-5 bg-neutral-900 text-white border-b flex justify-between"><h2 class="text-sm uppercase font-semibold"><i class="fa-solid fa-heart text-luxury-gold mr-2"></i>Lista de desejos</h2><button onclick="toggleWishlist()"><i class="fa-solid fa-times"></i></button></div>
+            <div class="flex-1 overflow-y-auto px-6" id="wishlist-items-container"></div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal (3 steps + payment) -->
+    <div id="checkout-modal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="fixed inset-0 bg-neutral-950/80" onclick="closeCheckout()"></div>
+        <div class="relative max-w-2xl mx-auto my-8 bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-neutral-900 text-white px-6 py-5 flex justify-between items-center">
+                <h3 class="text-xs uppercase tracking-widest font-bold"><i class="fa-solid fa-lock text-luxury-gold mr-2"></i>Checkout Seguro — Azavision</h3>
+                <button onclick="closeCheckout()"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="bg-neutral-50 px-6 py-3 flex text-center border-b">
+                <div id="step-tab-1" class="checkout-step-tab flex-1 text-xs uppercase font-semibold text-luxury-gold">1. Dados</div>
+                <div id="step-tab-2" class="checkout-step-tab flex-1 text-xs uppercase font-semibold text-neutral-400">2. Resumo</div>
+                <div id="step-tab-3" class="checkout-step-tab flex-1 text-xs uppercase font-semibold text-neutral-400">3. Pagamento</div>
+            </div>
+            <div class="p-6">
+                <!-- Step 1 -->
+                <div id="checkout-step-1" class="space-y-4">
+                    <h4 class="text-xs font-bold uppercase border-b pb-2">Dados de faturação e entrega</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="text-[11px] uppercase font-semibold text-neutral-500">Nome *</label><input type="text" id="chk-firstname" class="w-full px-3 py-2 text-xs border rounded-md mt-1 focus:border-luxury-gold outline-none"></div>
+                        <div><label class="text-[11px] uppercase font-semibold text-neutral-500">Apelido *</label><input type="text" id="chk-lastname" class="w-full px-3 py-2 text-xs border rounded-md mt-1 focus:border-luxury-gold outline-none"></div>
+                    </div>
+                    <div><label class="text-[11px] uppercase font-semibold text-neutral-500">NIF * (obrigatório — faturação AT)</label><input type="text" id="chk-nif" maxlength="9" placeholder="123456789" class="w-full px-3 py-2 text-xs border rounded-md mt-1 focus:border-luxury-gold outline-none"></div>
+                    <div><label class="text-[11px] uppercase font-semibold text-neutral-500">E-mail *</label><input type="email" id="chk-email" class="w-full px-3 py-2 text-xs border rounded-md mt-1 focus:border-luxury-gold outline-none"></div>
+                    <div><label class="text-[11px] uppercase font-semibold text-neutral-500">Morada completa *</label><input type="text" id="chk-address" class="w-full px-3 py-2 text-xs border rounded-md mt-1 focus:border-luxury-gold outline-none"></div>
+                    <div class="flex justify-end pt-4"><button onclick="goToCheckoutStep(2)" class="px-6 py-3 bg-neutral-900 text-white text-xs uppercase font-semibold rounded-md hover:bg-luxury-gold hover:text-neutral-900 transition">Continuar <i class="fa-solid fa-arrow-right ml-2"></i></button></div>
+                </div>
+                <!-- Step 2 -->
+                <div id="checkout-step-2" class="space-y-4 hidden">
+                    <h4 class="text-xs font-bold uppercase border-b pb-2">Resumo da encomenda</h4>
+                    <div class="bg-stone-50 p-4 rounded-lg text-xs space-y-2">
+                        <p><strong>Destinatário:</strong> <span id="summary-name">—</span></p>
+                        <p><strong>NIF:</strong> <span id="summary-nif">—</span></p>
+                        <p><strong>Morada:</strong> <span id="summary-address">—</span></p>
+                        <p><strong>E-mail:</strong> <span id="summary-email">—</span></p>
+                        <p><strong>IVA:</strong> <span id="summary-iva">—</span></p>
+                        <p class="font-bold text-sm pt-2 border-t"><strong>Total:</strong> <span id="summary-total">—</span></p>
+                    </div>
+                    <div class="flex justify-between gap-3 pt-4">
+                        <button onclick="goToCheckoutStep(1)" class="px-4 py-3 border text-xs uppercase rounded-md"><i class="fa-solid fa-arrow-left mr-2"></i>Voltar</button>
+                        <button onclick="goToCheckoutStep(3)" class="flex-1 py-3 bg-luxury-gold text-neutral-950 text-xs uppercase font-bold rounded-md">Escolher pagamento <i class="fa-solid fa-arrow-right ml-2"></i></button>
+                    </div>
+                </div>
+                <!-- Step 3 — Payment -->
+                <div id="checkout-step-3" class="space-y-4 hidden">
+                    <h4 class="text-xs font-bold uppercase border-b pb-2">Método de pagamento — <span id="pay-amount" class="text-luxury-gold-dark">0.00 €</span></h4>
+                    <div class="space-y-3">
+                        <label id="pay-stripe" class="payment-option flex items-center gap-4 p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-luxury-gold transition" onclick="selectPaymentMethod('stripe')">
+                            <input type="radio" name="payment-method" id="radio-stripe" value="stripe" class="accent-luxury-gold">
+                            <i class="fa-brands fa-cc-visa text-2xl text-blue-800"></i>
+                            <div><p class="text-xs font-bold uppercase">Cartão de crédito/débito</p><p class="text-[10px] text-neutral-500">Visa, Mastercard — via Stripe</p></div>
+                        </label>
+                        <label id="pay-mbway" class="payment-option flex items-center gap-4 p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-luxury-gold transition" onclick="selectPaymentMethod('mbway')">
+                            <input type="radio" name="payment-method" id="radio-mbway" value="mbway" class="accent-luxury-gold">
+                            <i class="fa-solid fa-mobile-screen text-2xl text-red-600"></i>
+                            <div><p class="text-xs font-bold uppercase">MB Way</p><p class="text-[10px] text-neutral-500">Pagamento instantâneo via telemóvel</p></div>
+                        </label>
+                        <div id="mbway-field" class="hidden pl-4">
+                            <label class="text-[11px] uppercase font-semibold text-neutral-500">Nº telemóvel MB Way</label>
+                            <input type="tel" id="mbway-phone" placeholder="9XX XXX XXX" class="w-full px-3 py-2 text-xs border rounded-md mt-1">
+                        </div>
+                        <label id="pay-multibanco" class="payment-option flex items-center gap-4 p-4 border border-neutral-200 rounded-lg cursor-pointer hover:border-luxury-gold transition" onclick="selectPaymentMethod('multibanco')">
+                            <input type="radio" name="payment-method" id="radio-multibanco" value="multibanco" class="accent-luxury-gold">
+                            <i class="fa-solid fa-building-columns text-2xl text-green-700"></i>
+                            <div><p class="text-xs font-bold uppercase">Multibanco</p><p class="text-[10px] text-neutral-500">Referência para pagamento — via Eupago</p></div>
+                        </label>
+                    </div>
+                    <div id="payment-instructions" class="hidden"></div>
+                    <p class="text-[10px] text-neutral-400 text-center">Ao pagar, aceita os nossos <a href="politica-privacidade.html" class="underline">termos e política de privacidade</a>. Fatura emitida automaticamente (IVA 23%).</p>
+                    <div class="flex justify-between gap-3 pt-4">
+                        <button onclick="goToCheckoutStep(2)" class="px-4 py-3 border text-xs uppercase rounded-md"><i class="fa-solid fa-arrow-left mr-2"></i>Voltar</button>
+                        <button id="btn-pay" onclick="processPayment()" class="flex-1 py-3 bg-luxury-gold text-neutral-950 text-xs uppercase font-bold rounded-md hover:bg-neutral-900 hover:text-white transition"><i class="fa-solid fa-lock mr-2"></i>Pagar agora</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  CONFIGURAÇÃO — ALTERAR O URL DO WEB APP (vitrine + admin)       ║
+    ║  CONFIGURATION — MODIFIER L'URL DU WEB APP (boutique + admin)    ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Passo 1: Google Apps Script → Implementar / Déployer             ║
+    ║  Étape 1 : Déployer une nouvelle version de l'application Web    ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Passo 2: Copiar o URL que termina em /exec                      ║
+    ║  Étape 2 : Copier l'URL se terminant par /exec                   ║
+    ╠══════════════════════════════════════════════════════════════════╣
+    ║  Passo 3: Colar na linha COLAR abaixo E em ERP_API_URL_DEFAULT   ║
+    ║           (admin/index.html) — mesma URL nos dois ficheiros.     ║
+    ║  Étape 3 : Coller dans COLAR ci-dessous ET dans ERP_API_URL_DEFAULT ║
+    ║            (admin/index.html) — aucun champ URL sur la page      ║
+    ╚══════════════════════════════════════════════════════════════════╝
+    -->
+    <script>
+      // ▼▼▼ COLAR O URL AQUI — APENAS NESTA LINHA (client/index.html) ▼▼▼
+      var API_URL = 'https://script.google.com/macros/s/AKfycby_INSEREZ_VOTRE_ID_WEB_APP/exec';
+      var ERP_API_URL_DEFAULT = API_URL;
+      // ▲▲▲ NÃO ALTERAR MAIS NADA AQUI ▲▲▲
+      // Mode démo : laissez '' (chaîne vide) dans API_URL ci-dessus
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/demo-store.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/payments.js"></script>
+    <script src="js/cookies.js"></script>
+</body>
+</html>

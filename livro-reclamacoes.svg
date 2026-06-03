@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" role="img" aria-label="Livro de Reclamações">
+  <rect width="120" height="40" rx="2" fill="#fff" stroke="#003399" stroke-width="1.5"/>
+  <rect x="8" y="8" width="24" height="24" fill="#003399"/>
+  <text x="20" y="24" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="14" font-weight="bold">!</text>
+  <text x="40" y="18" fill="#003399" font-family="Arial,sans-serif" font-size="7" font-weight="bold">LIVRO DE</text>
+  <text x="40" y="28" fill="#003399" font-family="Arial,sans-serif" font-size="7" font-weight="bold">RECLAMAÇÕES</text>
+  <text x="40" y="36" fill="#666" font-family="Arial,sans-serif" font-size="5">ELETRÓNICO</text>
+</svg>
