@@ -35,5 +35,6 @@ let APP_STATE = {
 
 function initConfig() {
     refreshConfigFromApi();
-    CONFIG.site_url = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
+    const path = window.location.pathname.replace(/\/[^/]*$/, '/');
+    CONFIG.site_url = window.location.origin + (path.endsWith('/') ? path : path + '/');
 }

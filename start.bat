@@ -5,9 +5,8 @@ echo  ========================================
 echo   AZAVISION - Demarrage serveur local
 echo  ========================================
 echo.
-echo  Boutique : http://localhost:3000/client/
-echo  Admin    : http://localhost:3000/admin/
-echo  Portail  : http://localhost:3000/
+echo  Boutique : http://localhost:3000/
+echo  Admin    : ouvrir ../admin/index.html (ou serveur parent)
 echo.
 echo  Mot de passe admin : azavision_admin
 echo.

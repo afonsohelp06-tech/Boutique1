@@ -213,13 +213,5 @@ function selectPaymentMethod(method) {
 }
 
 function updateModeBadge() {
-    const badge = document.getElementById('mode-badge');
-    if (!badge) return;
-    if (AzavisionAPI.isLive()) {
-        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Google Sheets';
-        badge.className = 'text-[10px] text-green-400 flex items-center gap-1.5';
-    } else {
-        badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span> Demo local';
-        badge.className = 'text-[10px] text-amber-400 flex items-center gap-1.5';
-    }
+    /* Badge technique retiré de l'interface client */
 }

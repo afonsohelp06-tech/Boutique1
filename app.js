@@ -9,9 +9,9 @@ window.onload = function () {
     loadCartFromLocalStorage();
     loadWishlistFromStorage();
     updateCartCounter();
-    updateModeBadge();
     handleStripeReturn();
     updateAccountNavUI();
+    syncProductionUI();
     fetchEnterpriseConfig();
 };
 
@@ -46,7 +46,7 @@ function fetchEnterpriseConfig() {
         .finally(() => {
             loadProductsFromSheet();
             updateLegalFooter();
-            updateModeBadge();
+            syncProductionUI();
         });
 }
 
@@ -103,6 +103,17 @@ function hideToast() {
     document.getElementById('toast').classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
 }
 
+function syncProductionUI() {
+    const demoHint = document.getElementById('account-demo-hint');
+    if (!demoHint) return;
+    if (AzavisionAPI.isProductionClient()) {
+        demoHint.classList.add('hidden');
+    } else {
+        demoHint.classList.remove('hidden');
+        demoHint.innerHTML = 'Conta de teste : <code class="bg-stone-100 px-1 rounded">joao@email.pt</code> / <code class="bg-stone-100 px-1 rounded">demo123</code>';
+    }
+}
+
 function loadProductsFromSheet() {
     const loading = document.getElementById('products-loading');
     const grid = document.getElementById('products-grid');
@@ -111,20 +122,28 @@ function loadProductsFromSheet() {
 
     AzavisionAPI.getProducts()
         .then(result => {
-            if (result.status === 'success' && result.data) {
+            if (result.status === 'success' && result.data && result.data.length) {
                 APP_STATE.products = result.data;
+            } else if (AzavisionAPI.isProductionClient()) {
+                APP_STATE.products = [];
             } else {
                 APP_STATE.products = DemoStore.getProducts();
             }
             renderCatalog();
         })
         .catch(() => {
-            APP_STATE.products = DemoStore.getProducts();
+            if (AzavisionAPI.isProductionClient()) {
+                APP_STATE.products = [];
+                showToast('Catálogo indisponível', 'Tente novamente dentro de momentos.', true);
+            } else {
+                APP_STATE.products = DemoStore.getProducts();
+            }
             renderCatalog();
         })
         .finally(() => {
             if (loading) loading.classList.add('hidden');
             if (grid) grid.classList.remove('hidden');
+            syncProductionUI();
         });
 }
 
@@ -152,9 +171,18 @@ function trackOrder() {
         .then(result => {
             const order = result.orders?.find(o => String(o.id_commande).toUpperCase() === trackId);
             if (order) displayTrackingDetails(order);
-            else resultDiv.innerHTML = '<div class="p-4 bg-red-950/20 border border-red-900 rounded-lg text-center"><p class="text-xs font-semibold">Referência não encontrada</p><p class="text-[10px] text-neutral-400 mt-1">Ex: AZ-852104 (demo)</p></div>';
+            else {
+                const extra = AzavisionAPI.isProductionClient() ? '' : '<p class="text-[10px] text-neutral-400 mt-1">Exemplo local: AZ-852104</p>';
+                resultDiv.innerHTML = '<div class="p-4 bg-red-950/20 border border-red-900 rounded-lg text-center"><p class="text-xs font-semibold">Referência não encontrada</p>' + extra + '</div>';
+            }
         })
-        .catch(() => displayFakeTracking(trackId));
+        .catch(() => {
+            if (AzavisionAPI.isProductionClient()) {
+                resultDiv.innerHTML = '<div class="p-4 bg-red-950/20 border border-red-900 rounded-lg text-center"><p class="text-xs font-semibold">Rastreio indisponível</p><p class="text-[10px] text-neutral-400 mt-1">Tente novamente mais tarde.</p></div>';
+            } else {
+                displayFakeTracking(trackId);
+            }
+        });
 }
 
 function displayFakeTracking(trackId) {

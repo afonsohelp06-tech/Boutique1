@@ -59,7 +59,6 @@
                     <a href="#lookbook" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Lookbook</a>
                     <a href="#boutique" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Loja</a>
                     <a href="#suivi" class="text-neutral-300 hover:text-luxury-gold transition-all-300">Rastreio</a>
-                    <span id="mode-badge" class="text-[10px] text-amber-400 flex items-center gap-1.5"></span>
                 </nav>
                 <div class="flex items-center space-x-4">
                     <button id="account-nav-btn" onclick="toggleAccountModal()" class="hidden sm:flex items-center gap-1.5 text-neutral-300 hover:text-luxury-gold transition text-xs uppercase tracking-wider" title="Conta cliente">
@@ -98,7 +97,7 @@
             </h1>
 
             <p class="text-sm sm:text-base text-neutral-300 font-light max-w-xl mx-auto mb-10 leading-relaxed pointer-events-auto">
-                L'équilibre entre confort, pureté des lignes et élégance intemporelle. Inventaire en direct via Google Sheets. IVA <span id="tva-display">23%</span> incluído.
+                L'équilibre entre confort, pureté des lignes et élégance intemporelle. Coleção contemporânea com envio em Portugal. IVA <span id="tva-display">23%</span> incluído.
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto">
@@ -327,7 +326,7 @@
             </div>
             <div class="p-6 max-h-[70vh] overflow-y-auto">
                 <div id="account-panel-login" class="space-y-4">
-                    <p class="text-xs text-neutral-500">Conta demo : <code class="bg-stone-100 px-1 rounded">joao@email.pt</code> / <code class="bg-stone-100 px-1 rounded">demo123</code></p>
+                    <p id="account-demo-hint" class="text-xs text-neutral-500 hidden"></p>
                     <div><label class="text-[10px] uppercase text-neutral-500">E-mail</label><input type="email" id="acc-login-email" class="w-full px-3 py-2 text-xs border rounded-md mt-1"></div>
                     <div><label class="text-[10px] uppercase text-neutral-500">Palavra-passe</label><input type="password" id="acc-login-pass" class="w-full px-3 py-2 text-xs border rounded-md mt-1" onkeydown="if(event.key==='Enter')submitAccountLogin()"></div>
                     <button type="button" onclick="submitAccountLogin()" class="w-full py-3 bg-luxury-gold text-neutral-950 text-xs uppercase font-bold rounded-md">Entrar</button>

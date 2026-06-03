@@ -36,9 +36,9 @@ npm start
 
 | Page | URL |
 |------|-----|
-| Portail | http://localhost:3000/client/portail.html |
-| Boutique | http://localhost:3000/client/ |
-| Admin | http://localhost:3000/admin/ |
+| Production (GitHub Pages) | `https://<compte>.github.io/<repo>/` |
+| Local — boutique | http://localhost:3000/ |
+| Local — admin | http://localhost:3000/admin/ |
 
 **Mot de passe admin :** `azavision_admin`
 

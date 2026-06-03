@@ -177,6 +177,7 @@ const ClientAccounts = (function () {
 // --- Interface boutique (modal conta) ---
 
 function updateAccountNavUI() {
+    syncProductionUI();
     const label = document.getElementById('account-nav-label');
     const btn = document.getElementById('account-nav-btn');
     if (!label || !btn) return;
