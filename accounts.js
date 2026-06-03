@@ -294,3 +294,10 @@ function submitAccountLogout() {
     showToast('Sessão terminada', '');
     toggleAccountModal();
 }
+
+window.toggleAccountModal = toggleAccountModal;
+window.showAccountTab = showAccountTab;
+window.submitAccountLogin = submitAccountLogin;
+window.submitAccountRegister = submitAccountRegister;
+window.submitAccountLogout = submitAccountLogout;
+window.submitAccountProfile = submitAccountProfile;

@@ -3,8 +3,10 @@
  */
 
 window.onload = function () {
+    if (typeof initHeroCanvas === 'function') initHeroCanvas();
     initConfig();
     DemoStore.init();
+    initPageNavigation();
     initHeaderScroll();
     loadCartFromLocalStorage();
     loadWishlistFromStorage();
@@ -101,6 +103,24 @@ function showToast(title, message, isError = false) {
 
 function hideToast() {
     document.getElementById('toast').classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+}
+
+function initPageNavigation() {
+    document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            var hash = link.getAttribute('href');
+            if (!hash || hash === '#') return;
+            var target = document.querySelector(hash);
+            if (!target) return;
+            e.preventDefault();
+            var header = document.getElementById('main-header');
+            var offset = (header ? header.offsetHeight : 0) + 12;
+            var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+            var menu = document.getElementById('mobile-menu');
+            if (menu && !menu.classList.contains('hidden')) menu.classList.add('hidden');
+        });
+    });
 }
 
 function syncProductionUI() {
@@ -491,3 +511,23 @@ function initHeaderScroll() {
         }
     });
 }
+
+window.toggleCart = toggleCart;
+window.toggleWishlist = toggleWishlist;
+window.toggleMobileMenu = toggleMobileMenu;
+window.filterCategory = filterCategory;
+window.searchProducts = searchProducts;
+window.sortProducts = sortProducts;
+window.trackOrder = trackOrder;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.goToCheckoutStep = goToCheckoutStep;
+window.applyPromoCode = applyPromoCode;
+window.hideToast = hideToast;
+window.showToast = showToast;
+window.openQuickView = openQuickView;
+window.closeQuickView = closeQuickView;
+window.selectSize = selectSize;
+window.addCurrentToCart = addCurrentToCart;
+window.quickAddToCart = quickAddToCart;
+window.subscribeNewsletter = subscribeNewsletter;

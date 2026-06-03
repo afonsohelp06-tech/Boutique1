@@ -35,6 +35,10 @@ let APP_STATE = {
 
 function initConfig() {
     refreshConfigFromApi();
-    const path = window.location.pathname.replace(/\/[^/]*$/, '/');
-    CONFIG.site_url = window.location.origin + (path.endsWith('/') ? path : path + '/');
+    if (typeof getAzavisionAppUrl === 'function') {
+        CONFIG.site_url = getAzavisionAppUrl();
+    } else {
+        const path = window.location.pathname.replace(/\/[^/]*$/, '/');
+        CONFIG.site_url = window.location.origin + (path.endsWith('/') ? path : path + '/');
+    }
 }

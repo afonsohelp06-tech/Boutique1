@@ -215,3 +215,7 @@ function selectPaymentMethod(method) {
 function updateModeBadge() {
     /* Badge technique retiré de l'interface client */
 }
+
+window.processPayment = processPayment;
+window.selectPaymentMethod = selectPaymentMethod;
+window.handleStripeReturn = handleStripeReturn;
