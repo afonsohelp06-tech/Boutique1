@@ -8,8 +8,30 @@ const DemoStore = (function () {
         orders: 'azavision_orders',
         config: 'azavision_config',
         promos: 'azavision_promo_codes',
+        accounts: 'azavision_accounts',
         initialized: 'azavision_store_initialized'
     };
+
+    const DEFAULT_ACCOUNTS = [
+        {
+            id: 'CLI-DEMO01',
+            email: 'joao@email.pt',
+            passwordHash: (function () {
+                const raw = 'joao@email.pt|' + 'demo123';
+                let h = 2166136261;
+                for (let i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619); }
+                return 'azv1_' + (h >>> 0).toString(16);
+            })(),
+            prenom: 'João',
+            nom: 'Silva',
+            nif: '123456789',
+            telefone: '912345678',
+            adresse: 'Rua Augusta 10, 1100-053 Lisboa',
+            createdAt: new Date().toISOString(),
+            active: true,
+            rgpdConsent: true
+        }
+    ];
 
     const DEFAULT_PRODUCTS = [
         { id: 'P001', nom: 'Manteau croisé en laine cachemire', categorie: 'hommes', prix: 349.00, description: 'Manteau luxueux en laine vierge cachemire.', image: 'https://images.unsplash.com/photo-1544022613-e87ca75a784a?q=80&w=600&auto=format&fit=crop', stock: 12 },
@@ -57,7 +79,64 @@ const DemoStore = (function () {
             { code: 'AZA10', type: 'percent', value: 10, uses: 0, maxUses: 0, active: true },
             { code: 'LISBOA20', type: 'percent', value: 20, uses: 0, maxUses: 50, active: true }
         ]);
+        write(KEYS.accounts, DEFAULT_ACCOUNTS);
         localStorage.setItem(KEYS.initialized, '1');
+    }
+
+    function getAccounts() {
+        init();
+        const list = read(KEYS.accounts, null);
+        if (!list || !list.length) {
+            write(KEYS.accounts, DEFAULT_ACCOUNTS);
+            return DEFAULT_ACCOUNTS.slice();
+        }
+        return list;
+    }
+
+    function saveAccounts(list) {
+        write(KEYS.accounts, list);
+    }
+
+    function registerAccount(data) {
+        const accounts = getAccounts();
+        const email = String(data.email || '').trim().toLowerCase();
+        if (accounts.some(a => String(a.email).toLowerCase() === email)) {
+            return { status: 'error', message: 'E-mail déjà utilisé' };
+        }
+        const raw = email + '|' + String(data.password || '');
+        let h = 2166136261;
+        for (let i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619); }
+        const account = {
+            id: 'CLI-' + Date.now().toString().slice(-8),
+            email: email,
+            passwordHash: 'azv1_' + (h >>> 0).toString(16),
+            prenom: data.prenom,
+            nom: data.nom,
+            nif: data.nif,
+            telefone: data.telefone || '',
+            adresse: data.adresse,
+            createdAt: new Date().toISOString(),
+            active: true,
+            rgpdConsent: true
+        };
+        accounts.push(account);
+        saveAccounts(accounts);
+        const { passwordHash, ...safe } = account;
+        return { status: 'success', account: safe };
+    }
+
+    function loginAccount(email, password) {
+        const em = String(email || '').trim().toLowerCase();
+        const accounts = getAccounts();
+        const account = accounts.find(a => String(a.email).toLowerCase() === em && a.active !== false);
+        if (!account) return { status: 'error', message: 'Compte introuvable' };
+        const raw = em + '|' + String(password || '');
+        let h = 2166136261;
+        for (let i = 0; i < raw.length; i++) { h ^= raw.charCodeAt(i); h = Math.imul(h, 16777619); }
+        const hash = 'azv1_' + (h >>> 0).toString(16);
+        if (account.passwordHash !== hash) return { status: 'error', message: 'Mot de passe incorrect' };
+        const { passwordHash, ...safe } = account;
+        return { status: 'success', account: safe };
     }
 
     function getProducts() {
@@ -209,6 +288,7 @@ const DemoStore = (function () {
     return {
         init, getProducts, saveProducts, getOrders, saveOrders,
         getConfig, saveConfig, getPromos, savePromos,
+        getAccounts, saveAccounts, registerAccount, loginAccount,
         addOrder, updateOrderStatus, addProduct, updateProduct,
         deleteProduct, updateStock,
         simulateStripeSession, simulateEupagoMBWay, simulateEupagoMultibanco

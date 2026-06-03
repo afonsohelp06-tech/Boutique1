@@ -1,0 +1,11 @@
+{
+  "name": "azavision-ecommerce",
+  "version": "1.0.0",
+  "description": "Boutique Azavision — Portugal (Stripe, Eupago, Moloni, RGPD)",
+  "scripts": {
+    "start": "npx --yes serve . -p 3000",
+    "serve": "npx --yes serve . -p 3000"
+  },
+  "keywords": ["azavision", "ecommerce", "portugal", "google-sheets"],
+  "license": "UNLICENSED"
+}

@@ -133,6 +133,55 @@ const AzavisionAPI = {
     async updateOrderStatus(id, statut) {
         if (!this.isLive()) return DemoStore.updateOrderStatus(id, statut);
         return this._fetch(this.getUrl() + '?action=update_order_status&id_commande=' + encodeURIComponent(id) + '&statut=' + encodeURIComponent(statut), { method: 'POST' });
+    },
+
+    async registerAccount(data) {
+        if (!this.isLive()) {
+            DemoStore.init();
+            return DemoStore.registerAccount(data);
+        }
+        return this._fetch(this.getUrl() + '?action=register_account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+    },
+
+    async loginAccount(email, password) {
+        if (!this.isLive()) {
+            DemoStore.init();
+            return DemoStore.loginAccount(email, password);
+        }
+        return this._fetch(this.getUrl() + '?action=login_account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+    },
+
+    async getAccounts() {
+        if (!this.isLive()) {
+            DemoStore.init();
+            return { status: 'success', accounts: DemoStore.getAccounts() };
+        }
+        return this._fetch(this.getUrl() + '?action=get_accounts');
+    },
+
+    async updateAccount(data) {
+        if (!this.isLive()) {
+            const accounts = DemoStore.getAccounts();
+            const idx = accounts.findIndex(a => a.id === data.id);
+            if (idx === -1) return { status: 'error', message: 'Compte introuvable' };
+            Object.assign(accounts[idx], data);
+            DemoStore.saveAccounts(accounts);
+            const { passwordHash, ...safe } = accounts[idx];
+            return { status: 'success', account: safe };
+        }
+        return this._fetch(this.getUrl() + '?action=update_account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
     }
 };
 
