@@ -1,69 +1,29 @@
-# Azavision — Boutique (client)
+# Azavision — Administration
 
-E-commerce mode Portugal : Stripe, Eupago (MB Way / Multibanco), IVA 23 %, Moloni, RGPD.
+Panneau de gestion : produits, commandes, stocks, promotions, configuration.
 
-## Structure `client/`
+## Structure `admin/`
 
 ```
-client/
-├── portail.html              # Page d'accueil (liens boutique + admin)
-├── index.html                # Boutique en ligne
-├── politica-privacidade.html
-├── assets/
+admin/
+├── index.html          # Interface admin (connexion + onglets)
 ├── js/
-│   ├── config.js
-│   ├── demo-store.js
-│   ├── api.js
-│   ├── app.js
-│   ├── payments.js
-│   └── cookies.js
-├── package.json
-├── start.bat
-├── INICIAR-DEMO.bat
+│   ├── admin-app.js    # Logique du panneau
+│   ├── api.js          # Couche API (même contrat que la boutique)
+│   └── demo-store.js   # Mode démo (localStorage partagé avec client)
 └── README.md
 ```
 
-## Démarrage
+## Accès
 
-### Windows (sans Node)
-Double-clic sur `INICIAR-DEMO.bat`
+- Fichier local : `admin/index.html`
+- Via serveur : http://localhost:3000/admin/ (lancer `client/start.bat` ou `cd client && npm start`)
+- Mot de passe par défaut : `azavision_admin`
 
-### Serveur local
-```bash
-cd client
-npm start
-```
+## URL API
 
-| Page | URL |
-|------|-----|
-| Production (GitHub Pages) | `https://<compte>.github.io/<repo>/` |
-| Local — boutique | http://localhost:3000/ |
-| Local — admin | http://localhost:3000/admin/ |
+En bas de `admin/index.html`, modifier la ligne `API_URL` (identique à `client/index.html`).
 
-**Mot de passe admin :** `azavision_admin`
+## Mode démo
 
-## Comptes clients
-
-- Boutique : icone **Conta** (header) → **Criar conta** ou **Entrar**
-- Compte demo : `joao@email.pt` / `demo123`
-- Checkout : donnees pre-remplies si connecte
-- Admin : onglet **Clients** (comptes registres + invites)
-- Google Sheets : feuille **Comptes** (apres re-init Azavision ou deploy API)
-
-## URL API (production)
-
-Coller la même URL Google Apps Script (`/exec`) en bas de :
-- `client/index.html` → variable `API_URL`
-- `admin/index.html` → variable `API_URL`
-
-Voir `../google-apps-script/README.md` pour déployer le backend.
-
-## GitHub
-
-À la racine du dépôt, seuls ces dossiers doivent apparaître : `client/`, `admin/`, `google-apps-script/`.
-
-```bash
-git init
-git add client admin google-apps-script
-git commit -m "Azavision e-commerce Portugal"
-```
+Les commandes passées sur la boutique (`client/index.html`) apparaissent ici si vous utilisez le **même navigateur** (localStorage partagé).
